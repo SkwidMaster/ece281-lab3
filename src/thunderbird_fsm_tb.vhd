@@ -51,10 +51,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity tb_thunderbird_fsm is
+entity thunderbird_fsm_tb is
 end entity;
 
-architecture behavior of tb_thunderbird_fsm is
+architecture behavior of thunderbird_fsm_tb is
     component thunderbird_fsm
         port(
             i_clk      : in  std_logic;
