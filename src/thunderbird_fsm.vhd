@@ -116,9 +116,9 @@ begin
 	o_lights_L(2) <= f_S(6) or f_S(0);
 	o_lights_L(1) <= f_S(6) or f_S(1) or f_S(0);
 	o_lights_L(0) <= f_S(6) or f_S(2) or f_S(1) or f_S(0);
-	o_lights_R(2) <= f_S(6) or f_S(5) or f_S(4) or f_S(3);
+	o_lights_R(0) <= f_S(6) or f_S(5) or f_S(4) or f_S(3);
 	o_lights_R(1) <= f_S(6) or f_S(4) or f_S(3);
-	o_lights_R(0) <= f_S(6) or f_S(3);
+	o_lights_R(2) <= f_S(6) or f_S(3);
 	
     ---------------------------------------------------------------------------------
 	
