@@ -86,15 +86,58 @@ end top_basys3;
 architecture top_basys3_arch of top_basys3 is 
   
 	-- declare components
+component clock_divider is
+	generic ( constant k_DIV : natural := 2	);
+	port ( 	i_clk    : in std_logic;		   -- basys3 clk
+			i_reset  : in std_logic;		   -- asynchronous
+			o_clk    : out std_logic		   -- divided (slow) clock
+	);
+end component clock_divider;
 
+component thunderbird_fsm is
+    port(
+        i_clk      : in  std_logic;
+        i_reset    : in  std_logic;
+        i_left     : in  std_logic;
+        i_right    : in  std_logic;
+        o_lights_L : out std_logic_vector(2 downto 0);
+        o_lights_R : out std_logic_vector(2 downto 0)
+    );
+end component;
+
+signal w_slow_clk : std_logic;
+
+signal w_left : std_logic;
+signal w_right : std_logic;
+signal w_lights_L : std_logic_vector (2 downto 0);
+signal w_lights_R : std_logic_vector (2 downto 0);
   
 begin
 	-- PORT MAPS ----------------------------------------
+	w_left <= sw(15);
+	w_right<= sw(0);
 
-	
+	clkdiv_inst : clock_divider 		--instantiation of clock_divider to take 
+        generic map ( k_DIV => 50000000 ) -- 1 Hz clock from 100 MHz
+        port map (						  
+            i_clk   => clk,
+            i_reset => btnL,
+            o_clk   => w_slow_clk
+        );
 	
 	-- CONCURRENT STATEMENTS ----------------------------
-	
+	fsm_inst : thunderbird_fsm
+    port map(
+        i_clk      => w_slow_clk,
+        i_reset    => btnR,
+        i_left     => w_left,
+        i_right    => w_right,
+        o_lights_L => w_lights_L,
+        o_lights_R => w_lights_R
+    );
+    
+    led(15 downto 13) <= w_lights_L;
+led(2 downto 0)   <= w_lights_R;
 	-- ground unused LEDs
 	-- leave unused switches UNCONNECTED
 	

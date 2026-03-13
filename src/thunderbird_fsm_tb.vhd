@@ -48,37 +48,89 @@
 --|
 --+----------------------------------------------------------------------------
 library ieee;
-  use ieee.std_logic_1164.all;
-  use ieee.numeric_std.all;
-  
-entity thunderbird_fsm_tb is
-end thunderbird_fsm_tb;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-architecture test_bench of thunderbird_fsm_tb is 
-	
-	component thunderbird_fsm is 
---	  port(
-		
---	  );
-	end component thunderbird_fsm;
+entity tb_thunderbird_fsm is
+end entity;
 
-	-- test I/O signals
-	
-	-- constants
-	
-	
+architecture behavior of tb_thunderbird_fsm is
+    component thunderbird_fsm
+        port(
+            i_clk      : in  std_logic;
+            i_reset    : in  std_logic;
+            i_left     : in  std_logic;
+            i_right    : in  std_logic;
+            o_lights_L : out std_logic_vector(2 downto 0);
+            o_lights_R : out std_logic_vector(2 downto 0)
+        );
+    end component;
+
+    signal w_clk      : std_logic := '0';
+    signal w_reset    : std_logic := '0';
+    signal w_left     : std_logic := '0';
+    signal w_right    : std_logic := '0';
+    signal w_lights_L : std_logic_vector(2 downto 0);
+    signal w_lights_R : std_logic_vector(2 downto 0);
+
+    constant CLK_PERIOD : time := 10 ns;
+
 begin
-	-- PORT MAPS ----------------------------------------
-	
-	-----------------------------------------------------
-	
-	-- PROCESSES ----------------------------------------	
-    -- Clock process ------------------------------------
-    
-	-----------------------------------------------------
-	
-	-- Test Plan Process --------------------------------
-	
-	-----------------------------------------------------	
-	
-end test_bench;
+
+    uut : thunderbird_fsm
+        port map(
+            i_clk      => w_clk,
+            i_reset    => w_reset,
+            i_left     => w_left,
+            i_right    => w_right,
+            o_lights_L => w_lights_L,
+            o_lights_R => w_lights_R
+        );
+
+    clk_process : process
+    begin
+        while true loop
+            w_clk <= '0';
+            wait for CLK_PERIOD/2;
+            w_clk <= '1';
+            wait for CLK_PERIOD/2;
+        end loop;
+    end process;
+
+    -- simulation Process
+    sim_proc : process
+    begin
+
+        -- RESET TEST
+        w_reset <= '1';
+        w_reset <= '0';
+        wait for 20 ns;
+
+        assert (w_lights_L = "000" and w_lights_R = "000") report "Reset test failed: lights not OFF" severity warning;
+
+        -- LEFT TURN TEST
+        w_left  <= '1';
+        w_right <= '0';
+
+        wait for 120 ns;
+        assert (w_lights_L /= "000") report "Left lights didn't activate" severity warning;
+
+        -- RIGHT TURN TEST
+        w_left  <= '0';
+        w_right <= '1';
+        wait for 120 ns;
+        assert (w_lights_R /= "000") report "Right lights didnt activate" severity warning;
+
+        -- HAZARD LIGHT TEST
+        w_left  <= '1';
+        w_right <= '1';
+
+        wait for 40 ns;
+
+        assert (w_lights_L /= "000" and w_lights_R /= "000") report "Hazard lights didn't activate" severity warning;
+
+        wait;
+
+    end process;
+
+end architecture;
